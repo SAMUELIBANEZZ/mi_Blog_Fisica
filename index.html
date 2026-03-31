@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Las Leyes de la Termodinámica · Blog de Samuel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0d0d0f;
+      --surface: #141417;
+      --surface2: #1c1c21;
+      --border: #2a2a32;
+      --amber: #f59e0b;
+      --amber-light: #fcd34d;
+      --amber-dim: rgba(245,158,11,0.12);
+      --red: #ef4444;
+      --blue: #60a5fa;
+      --text: #e8e6df;
+      --text-muted: #8b8982;
+      --text-dim: #5a5955;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Source Serif 4', Georgia, serif;
+      font-size: 18px;
+      line-height: 1.75;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 999; opacity: 0.4;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: relative;
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      text-align: center;
+      padding: 6rem 2rem 4rem;
+      overflow: hidden;
+    }
+
+    .header-glow {
+      position: absolute;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(245,158,11,0.18) 0%, transparent 70%);
+      top: 50%; left: 50%; transform: translate(-50%, -50%);
+      animation: pulse 4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; transform: translate(-50%,-50%) scale(1); }
+      50% { opacity: 1; transform: translate(-50%,-50%) scale(1.1); }
+    }
+
+    .header-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      color: var(--amber);
+      text-transform: uppercase;
+      border: 1px solid var(--amber);
+      padding: 0.3em 0.9em;
+      border-radius: 2px;
+      margin-bottom: 2.5rem;
+      animation: fadeUp 0.8s ease both;
+    }
+
+    h1.blog-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.8rem, 8vw, 6.5rem);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      max-width: 900px;
+      animation: fadeUp 0.9s 0.15s ease both;
+    }
+
+    h1.blog-title span { color: var(--amber); }
+
+    .header-subtitle {
+      margin-top: 1.5rem;
+      font-size: 1.05rem;
+      font-style: italic;
+      color: var(--text-muted);
+      max-width: 500px;
+      animation: fadeUp 1s 0.3s ease both;
+    }
+
+    .scroll-hint {
+      position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+      color: var(--text-dim); letter-spacing: 0.15em;
+      animation: fadeIn 1.5s 1s ease both;
+    }
+
+    .scroll-hint::after {
+      content: '';
+      width: 1px; height: 40px;
+      background: linear-gradient(to bottom, var(--amber), transparent);
+      animation: scrollLine 2s ease-in-out infinite;
+    }
+
+    @keyframes scrollLine {
+      0%, 100% { opacity: 0; transform: scaleY(0.3); transform-origin: top; }
+      50% { opacity: 1; transform: scaleY(1); }
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13,13,15,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0.9rem 2rem;
+      display: flex; justify-content: center; gap: 2rem;
+    }
+
+    nav a {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    nav a:hover { color: var(--amber); }
+
+    /* ── LAYOUT ── */
+    main { max-width: 780px; margin: 0 auto; padding: 0 2rem; }
+
+    section { padding: 5rem 0; border-bottom: 1px solid var(--border); }
+    section:last-child { border-bottom: none; }
+
+    /* ── SECTION LABELS ── */
+    .section-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 1.5rem;
+      display: flex; align-items: center; gap: 0.8rem;
+    }
+
+    .section-label::before {
+      content: ''; display: block;
+      width: 24px; height: 1px;
+      background: var(--amber);
+    }
+
+    /* ── HEADINGS ── */
+    h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 1.5rem;
+    }
+
+    h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 0.8rem;
+      color: var(--amber-light);
+    }
+
+    p { margin-bottom: 1.2rem; color: #d4d2cb; }
+
+    /* ── PRESENTATION CARD ── */
+    .profile-card {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 2rem;
+      align-items: start;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2rem;
+      margin-top: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .profile-card::before {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(to bottom, var(--amber), transparent);
+    }
+
+    .avatar {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: var(--amber-dim);
+      border: 2px solid var(--amber);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: var(--amber);
+    }
+
+    .profile-info h3 { font-size: 1.2rem; margin-bottom: 0.3rem; color: var(--text); }
+    .profile-info .role {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--amber);
+      letter-spacing: 0.1em;
+      margin-bottom: 0.8rem;
+    }
+
+    .interests { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.8rem; }
+    .interest-tag {
+      background: var(--amber-dim);
+      border: 1px solid rgba(245,158,11,0.3);
+      color: var(--amber-light);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      padding: 0.25em 0.8em;
+      border-radius: 2px;
+    }
+
+    /* ── IDEAS PRINCIPALES ── */
+    .ideas-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 600px) { .ideas-grid { grid-template-columns: 1fr; } }
+
+    .idea-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1.5rem;
+      position: relative;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .idea-card:hover { border-color: var(--amber); transform: translateY(-2px); }
+
+    .idea-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 3rem;
+      font-weight: 900;
+      color: var(--border);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .idea-card h4 {
+      font-family: 'Source Serif 4', serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--amber-light);
+      margin-bottom: 0.4rem;
+    }
+
+    .idea-card p { font-size: 0.9rem; color: var(--text-muted); margin: 0; }
+
+    /* ── LAW SECTIONS ── */
+    .law-block {
+      margin-bottom: 4rem;
+      padding-bottom: 3rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .law-block:last-child { border-bottom: none; margin-bottom: 0; }
+
+    .law-header {
+      display: flex; align-items: flex-start; gap: 1.5rem;
+      margin-bottom: 1.8rem;
+    }
+
+    .law-num {
+      flex-shrink: 0;
+      width: 60px; height: 60px;
+      border: 2px solid var(--amber);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--amber);
+    }
+
+    .formula-box {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--amber);
+      border-radius: 0 4px 4px 0;
+      padding: 1.2rem 1.5rem;
+      margin: 1.5rem 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1rem;
+      color: var(--amber-light);
+      text-align: center;
+    }
+
+    .formula-box .formula-label {
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .formula-main { font-size: 1.3rem; }
+
+    /* Diagrama SVG termodinámica */
+    .diagram-container {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+      text-align: center;
+    }
+
+    .diagram-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    /* ── QUOTE BLOCK ── */
+    blockquote {
+      border-left: 3px solid var(--amber);
+      padding: 0.8rem 1.5rem;
+      margin: 2rem 0;
+      font-style: italic;
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      background: var(--amber-dim);
+      border-radius: 0 4px 4px 0;
+    }
+
+    /* ── PREGUNTAS ── */
+    .question-list { margin-top: 2rem; }
+
+    .question-item {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 1.2rem;
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      transition: border-color 0.2s;
+    }
+
+    .question-item:hover { border-color: var(--amber); }
+
+    .q-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--amber);
+      padding-top: 0.15rem;
+      white-space: nowrap;
+    }
+
+    .question-item p { margin: 0; font-size: 1rem; }
+
+    /* ── REFERENCIAS ── */
+    .ref-list { margin-top: 2rem; }
+
+    .ref-item {
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .ref-item:last-child { border-bottom: none; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 3rem 2rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      letter-spacing: 0.1em;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+
+    /* Intersection observer targets */
+    .reveal {
+      opacity: 0; transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1; transform: translateY(0);
+    }
+
+    /* ── UTILITIES ── */
+    .highlight { color: var(--amber-light); }
+    .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.85em; }
+
+    em { color: var(--amber-light); font-style: italic; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<header>
+  <div class="header-glow"></div>
+  <div class="header-tag">Blog Académico · SENA · 2025</div>
+  <h1 class="blog-title">Las <span>Leyes</span> de la<br>Termodinámica</h1>
+  <p class="header-subtitle">El calor, el trabajo y la energía que mueven el universo</p>
+  <div class="scroll-hint">desplazar</div>
+</header>
+
+<!-- ═══════════════ NAV ═══════════════ -->
+<nav>
+  <a href="#presentacion">Presentación</a>
+  <a href="#ideas">Ideas</a>
+  <a href="#desarrollo">Leyes</a>
+  <a href="#preguntas">Preguntas</a>
+  <a href="#referencias">Referencias</a>
+</nav>
+
+<main>
+
+  <!-- ═══════════════ PRESENTACIÓN ═══════════════ -->
+  <section id="presentacion">
+    <div class="section-label">01 · Presentación</div>
+    <h2>¿Quién escribe este blog?</h2>
+    <p>
+      Este espacio nace como una exploración personal y académica de uno de los pilares más fundamentales de la física: las leyes que gobiernan la energía y el calor en el universo.
+    </p>
+
+    <div class="profile-card reveal">
+      <img class="avatar" src="rigby.webp" alt="Foto de Samuel" style="object-fit:cover;">
+      <div class="profile-info">
+        <h3>Samuel Esteban Ibañez Rincón</h3>
+        <div class="role">Aprendiz SENA · Tecnología &amp; Electrónica</div>
+        <p style="font-size:0.95rem; margin-bottom:0.8rem;">
+          Estudiante apasionado por comprender cómo funciona el mundo desde sus bases físicas. Me interesan especialmente los fenómenos que conectan la teoría con la realidad observable: desde un motor a vapor hasta los procesos que ocurren a nivel molecular.
+        </p>
+        <div class="interests">
+          <span class="interest-tag">⚡ Física aplicada</span>
+          <span class="interest-tag">🌡️ Termodinámica</span>
+          <span class="interest-tag">💻 Programación</span>
+          <span class="interest-tag">🔌 Electrónica</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ IDEAS PRINCIPALES ═══════════════ -->
+  <section id="ideas">
+    <div class="section-label">02 · Ideas Principales</div>
+    <h2>Lo que este blog sostiene</h2>
+    <p>
+      Las leyes de la termodinámica no son simples fórmulas académicas: son principios que describen con precisión el comportamiento de la energía en cualquier sistema del universo, desde una célula biológica hasta una estrella.
+    </p>
+
+    <div class="ideas-grid">
+      <div class="idea-card reveal">
+        <div class="idea-number">01</div>
+        <h4>La energía no se crea ni se destruye</h4>
+        <p>La Primera Ley establece que la energía total de un sistema aislado permanece constante.</p>
+      </div>
+      <div class="idea-card reveal">
+        <div class="idea-number">02</div>
+        <h4>El desorden siempre tiende a aumentar</h4>
+        <p>La Segunda Ley introduce la entropía: los procesos naturales evolucionan hacia estados más desordenados.</p>
+      </div>
+      <div class="idea-card reveal">
+        <div class="idea-number">03</div>
+        <h4>El cero absoluto es inalcanzable</h4>
+        <p>La Tercera Ley establece que ningún sistema real puede alcanzar los −273.15 °C en un número finito de pasos.</p>
+      </div>
+      <div class="idea-card reveal">
+        <div class="idea-number">00</div>
+        <h4>El equilibrio térmico define la temperatura</h4>
+        <p>La Ley Cero, base lógica de todo: si dos cuerpos están en equilibrio con un tercero, están en equilibrio entre sí.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ DESARROLLO ═══════════════ -->
+  <section id="desarrollo">
+    <div class="section-label">03 · Desarrollo</div>
+    <h2>Las Cuatro Leyes</h2>
+    <p>
+      Aunque históricamente se conocen como "tres leyes", en realidad la termodinámica clásica descansa sobre cuatro principios. Aquí los exploramos en detalle.
+    </p>
+
+    <!-- LEY CERO -->
+    <div class="law-block reveal">
+      <div class="law-header">
+        <div class="law-num">0</div>
+        <div>
+          <h3>Ley Cero — Equilibrio Térmico</h3>
+          <p style="color:var(--text-muted); font-size:0.95rem; margin:0;">El fundamento de la temperatura como magnitud medible</p>
+        </div>
+      </div>
+
+      <p>
+        La Ley Cero fue formulada después de las otras dos leyes, pero al reconocer su carácter más fundamental, se le asignó el número cero. Su enunciado parece simple:
+      </p>
+
+      <blockquote>
+        "Si el sistema A está en equilibrio térmico con el sistema C, y el sistema B también está en equilibrio térmico con C, entonces A y B están en equilibrio térmico entre sí."
+      </blockquote>
+
+      <p>
+        Esta ley es la que hace posible el concepto de <em>temperatura</em> como una propiedad física real y comparable. Sin ella, no podríamos hablar de que dos cuerpos tienen "la misma temperatura" de manera significativa. Es la base que justifica el uso de los termómetros: un termómetro actúa como ese tercer sistema C que se pone en equilibrio con lo que queremos medir.
+      </p>
+
+      <div class="diagram-container">
+        <div class="diagram-label">Esquema — Equilibrio Térmico</div>
+        <svg viewBox="0 0 480 180" width="100%" style="max-width:480px;">
+          <defs>
+            <radialGradient id="gA" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.05"/>
+            </radialGradient>
+            <radialGradient id="gB" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#60a5fa" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#60a5fa" stop-opacity="0.05"/>
+            </radialGradient>
+            <radialGradient id="gC" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#34d399" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#34d399" stop-opacity="0.05"/>
+            </radialGradient>
+          </defs>
+          <!-- A -->
+          <ellipse cx="90" cy="90" rx="70" ry="55" fill="url(#gA)" stroke="#f59e0b" stroke-width="1.5"/>
+          <text x="90" y="85" text-anchor="middle" font-family="Playfair Display" font-size="22" font-weight="700" fill="#fcd34d">A</text>
+          <text x="90" y="108" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#f59e0b">T = 40°C</text>
+          <!-- arrow A-C -->
+          <line x1="163" y1="90" x2="195" y2="90" stroke="#6b7280" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <text x="179" y="82" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#6b7280">≡</text>
+          <!-- C -->
+          <ellipse cx="240" cy="90" rx="42" ry="55" fill="url(#gC)" stroke="#34d399" stroke-width="1.5"/>
+          <text x="240" y="85" text-anchor="middle" font-family="Playfair Display" font-size="22" font-weight="700" fill="#6ee7b7">C</text>
+          <text x="240" y="108" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#34d399">T = 40°C</text>
+          <!-- arrow C-B -->
+          <line x1="283" y1="90" x2="315" y2="90" stroke="#6b7280" stroke-width="1.5" stroke-dasharray="4,3"/>
+          <text x="299" y="82" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#6b7280">≡</text>
+          <!-- B -->
+          <ellipse cx="388" cy="90" rx="70" ry="55" fill="url(#gB)" stroke="#60a5fa" stroke-width="1.5"/>
+          <text x="388" y="85" text-anchor="middle" font-family="Playfair Display" font-size="22" font-weight="700" fill="#93c5fd">B</text>
+          <text x="388" y="108" text-anchor="middle" font-family="JetBrains Mono" font-size="10" fill="#60a5fa">T = 40°C</text>
+          <!-- conclusion arrow A-B -->
+          <path d="M 90 148 Q 240 168 388 148" stroke="#f59e0b" stroke-width="1.5" fill="none" stroke-dasharray="5,3" opacity="0.6"/>
+          <text x="240" y="175" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#f59e0b" opacity="0.8">∴ A ≡ B</text>
+        </svg>
+      </div>
+
+      <p>
+        En la práctica cotidiana, esta ley explica por qué el café caliente se enfría hasta llegar a la temperatura del ambiente, o por qué dos objetos en contacto durante suficiente tiempo terminan teniendo la misma temperatura.
+      </p>
+    </div>
+
+    <!-- PRIMERA LEY -->
+    <div class="law-block reveal">
+      <div class="law-header">
+        <div class="law-num">1ª</div>
+        <div>
+          <h3>Primera Ley — Conservación de la Energía</h3>
+          <p style="color:var(--text-muted); font-size:0.95rem; margin:0;">La energía se transforma, nunca se pierde</p>
+        </div>
+      </div>
+
+      <p>
+        La Primera Ley de la Termodinámica es una extensión del principio de conservación de la energía al ámbito del calor y los sistemas termodinámicos. Su enunciado fundamental es:
+      </p>
+
+      <blockquote>
+        "La energía interna de un sistema cambia cuando se le transfiere calor o cuando el sistema realiza trabajo sobre sus alrededores."
+      </blockquote>
+
+      <div class="formula-box">
+        <div class="formula-label">Expresión matemática</div>
+        <div class="formula-main">ΔU = Q − W</div>
+      </div>
+
+      <p>
+        Donde <span class="mono">ΔU</span> es el cambio en la energía interna del sistema, <span class="mono">Q</span> es el calor absorbido por el sistema, y <span class="mono">W</span> es el trabajo realizado por el sistema. Si el sistema recibe calor (<span class="mono">Q &gt; 0</span>) y no realiza trabajo, su energía interna aumenta. Si realiza trabajo sobre el entorno, parte de esa energía se transfiere hacia afuera.
+      </p>
+
+      <p>
+        Esta ley tiene una consecuencia directa y contundente: <em>un motor de movimiento perpetuo de primera clase es imposible</em>. Ninguna máquina puede producir trabajo sin consumir alguna forma de energía. Todo ingeniero y diseñador de sistemas térmicos parte de este principio.
+      </p>
+
+      <p>
+        Un ejemplo cotidiano: cuando inflamos un globo, realizamos trabajo sobre el gas (comprimimos). Al soltar el globo, el gas realiza trabajo expansiéndose hacia el exterior. La energía no desaparece; simplemente cambia de forma.
+      </p>
+    </div>
+
+    <!-- SEGUNDA LEY -->
+    <div class="law-block reveal">
+      <div class="law-header">
+        <div class="law-num">2ª</div>
+        <div>
+          <h3>Segunda Ley — Entropía y la Dirección del Tiempo</h3>
+          <p style="color:var(--text-muted); font-size:0.95rem; margin:0;">El universo tiende al desorden</p>
+        </div>
+      </div>
+
+      <p>
+        La Segunda Ley es quizás la más filosóficamente profunda de todas. Introduce la <em>entropía</em> (símbolo <span class="mono">S</span>): una magnitud que mide el grado de desorden o dispersión de energía en un sistema.
+      </p>
+
+      <blockquote>
+        "En todo proceso espontáneo, la entropía total del universo nunca disminuye. En los procesos irreversibles, siempre aumenta."
+      </blockquote>
+
+      <div class="formula-box">
+        <div class="formula-label">Variación de entropía en un proceso reversible</div>
+        <div class="formula-main">dS = δQ<sub style="font-size:0.7em">rev</sub> / T</div>
+      </div>
+
+      <p>
+        Esta ley explica por qué los procesos naturales tienen una <em>dirección preferida</em>: el calor fluye espontáneamente del cuerpo caliente al frío, nunca al revés; el humo se dispersa en el aire pero no se concentra solo; los objetos se rompen pero no se "auto-reparan". Todas estas asimetrías son manifestaciones de la Segunda Ley.
+      </p>
+
+      <p>
+        También establece el límite de eficiencia de cualquier máquina térmica. El ciclo de Carnot, considerado el ciclo ideal, define la máxima eficiencia teórica posible para una máquina que opera entre dos temperaturas:
+      </p>
+
+      <div class="formula-box">
+        <div class="formula-label">Eficiencia máxima (Ciclo de Carnot)</div>
+        <div class="formula-main">η = 1 − (T<sub style="font-size:0.7em">fría</sub> / T<sub style="font-size:0.7em">caliente</sub>)</div>
+      </div>
+
+      <p>
+        Ningún motor real puede superar esta eficiencia, por lo que la investigación en termodinámica aplicada busca constantemente acercarse a este límite teórico.
+      </p>
+    </div>
+
+    <!-- TERCERA LEY -->
+    <div class="law-block reveal">
+      <div class="law-header">
+        <div class="law-num">3ª</div>
+        <div>
+          <h3>Tercera Ley — El Cero Absoluto</h3>
+          <p style="color:var(--text-muted); font-size:0.95rem; margin:0;">Una frontera inalcanzable</p>
+        </div>
+      </div>
+
+      <p>
+        Formulada por Walter Nernst a principios del siglo XX, la Tercera Ley establece el comportamiento de los sistemas cuando se acercan al cero absoluto de temperatura.
+      </p>
+
+      <blockquote>
+        "La entropía de un cristal perfecto de cualquier sustancia pura tiende a cero cuando su temperatura se aproxima al cero absoluto (0 K = −273.15 °C)."
+      </blockquote>
+
+      <div class="formula-box">
+        <div class="formula-label">Límite de la entropía</div>
+        <div class="formula-main">lim(T→0) S = 0</div>
+      </div>
+
+      <p>
+        Una consecuencia práctica crucial: <em>es imposible alcanzar el cero absoluto en un número finito de pasos experimentales</em>. Cada vez que intentamos enfriar un sistema más, necesitamos más esfuerzo para extraer la misma cantidad de calor residual. La temperatura puede acercarse indefinidamente a 0 K, pero nunca llegar.
+      </p>
+
+      <p>
+        Los laboratorios de física experimental han logrado temperaturas increíblemente bajas (del orden de nanokelvins, es decir, milmillonésimas de grado sobre el cero absoluto), estudiando fenómenos cuánticos como la condensación de Bose-Einstein. Sin embargo, el cero absoluto permanece como un límite asintótico.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════════ PREGUNTAS ═══════════════ -->
+  <section id="preguntas">
+    <div class="section-label">04 · Preguntas</div>
+    <h2>Reflexiones para profundizar</h2>
+    <p>
+      Las siguientes preguntas invitan a ir más allá de la memorización y a conectar los conceptos con situaciones reales o filosóficas.
+    </p>
+
+    <div class="question-list">
+      <div class="question-item reveal">
+        <div class="q-num">P.01</div>
+        <p>Si la Primera Ley establece que la energía se conserva, ¿por qué un auto necesita gasolina constantemente para funcionar? ¿A dónde "va" la energía del combustible?</p>
+      </div>
+      <div class="question-item reveal">
+        <div class="q-num">P.02</div>
+        <p>La Segunda Ley dice que el desorden siempre aumenta en el universo. Sin embargo, los seres vivos se organizan y crecen. ¿Contradice esto la ley? ¿Por qué sí o por qué no?</p>
+      </div>
+      <div class="question-item reveal">
+        <div class="q-num">P.03</div>
+        <p>¿Cómo se relaciona el concepto de entropía con la "dirección del tiempo"? ¿Podría existir un universo donde el tiempo fluyera al revés desde el punto de vista termodinámico?</p>
+      </div>
+      <div class="question-item reveal">
+        <div class="q-num">P.04</div>
+        <p>Dado que ninguna máquina puede ser 100% eficiente (Segunda Ley), ¿cuáles son las implicaciones para el diseño de motores eléctricos y sistemas de energía renovable?</p>
+      </div>
+      <div class="question-item reveal">
+        <div class="q-num">P.05</div>
+        <p>Si el cero absoluto es inalcanzable (Tercera Ley), ¿tiene sentido intentar acercarse a él en laboratorio? ¿Qué fenómenos físicos interesantes ocurren a temperaturas extremadamente bajas?</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ REFERENCIAS ═══════════════ -->
+  <section id="referencias">
+    <div class="section-label">05 · Referencias</div>
+    <h2>Fuentes consultadas</h2>
+    <p style="font-size:0.9rem; color:var(--text-muted);">Referencias en formato APA 7.ª edición.</p>
+
+    <div class="ref-list reveal">
+      <div class="ref-item">
+        Cengel, Y. A., &amp; Boles, M. A. (2019). <em>Termodinámica</em> (8.ª ed.). McGraw-Hill Education.
+      </div>
+      <div class="ref-item">
+        Çengel, Y. A., &amp; Cimbala, J. M. (2018). <em>Mecánica de fluidos: Fundamentos y aplicaciones</em> (4.ª ed.). McGraw-Hill Education.
+      </div>
+      <div class="ref-item">
+        Atkins, P., &amp; de Paula, J. (2018). <em>Physical chemistry: Thermodynamics, structure, and change</em> (10th ed.). Oxford University Press.
+      </div>
+      <div class="ref-item">
+        Zemansky, M. W., &amp; Dittman, R. H. (1990). <em>Heat and thermodynamics: An intermediate textbook</em> (7th ed.). McGraw-Hill.
+      </div>
+      <div class="ref-item">
+        Khan Academy. (2023). <em>Termodinámica</em>. Khan Academy. <a href="https://es.khanacademy.org/science/physics/thermodynamics" style="color:var(--amber)">https://es.khanacademy.org/science/physics/thermodynamics</a>
+      </div>
+      <div class="ref-item">
+        OpenStax. (2022). <em>University physics volume 2</em>. OpenStax Rice University. <a href="https://openstax.org/books/university-physics-volume-2/pages/1-introduction" style="color:var(--amber)">https://openstax.org/books/university-physics-volume-2</a>
+      </div>
+      <div class="ref-item">
+        Anthropic. (2025). <em>Claude</em> [Modelo de lenguaje de inteligencia artificial]. Anthropic. <a href="https://claude.ai" style="color:var(--amber)">https://claude.ai</a> — Utilizado como apoyo para la redacción y estructuración de contenido académico.
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>Samuel · Blog Académico SENA · Leyes de la Termodinámica · 2025</p>
+  <p style="margin-top:0.5rem; opacity:0.5;">Construido con HTML · Alojado en GitHub Pages</p>
+</footer>
+
+<script>
+  // Intersection Observer for reveal animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
