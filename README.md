@@ -15,4 +15,4 @@ Explora los fundamentos de la termodinámica: equilibrio térmico, gases ideales
 
 ---
 
-*Autor: Samuel · SENA 2025*
+*Autor: Samuel · SENA 2026*
