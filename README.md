@@ -1,23 +1,18 @@
-# 🌡️ Blog — Las Leyes de la Termodinámica
+# 🌡️ Blog — Calor y Temperatura
 
-Blog académico desarrollado como actividad formativa del SENA, en el que se exploran las cuatro leyes de la termodinámica: su historia, fundamentos matemáticos y aplicaciones en el mundo real.
+Blog académico desarrollado como actividad formativa del SENA, basado en el texto *Calor y Temperatura* de Beléndez Vázquez (Universidad de Alicante, 2017).
 
-## 📌 Contenido
-
-- Ley Cero — Equilibrio térmico
-- Primera Ley — Conservación de la energía
-- Segunda Ley — Entropía
-- Tercera Ley — El cero absoluto
-
-## 🛠️ Tecnologías
-
-- HTML5 / CSS3
-- Alojado en GitHub Pages
+Explora los fundamentos de la termodinámica: equilibrio térmico, gases ideales, dilatación, calorimetría y los tres mecanismos de propagación del calor.
 
 ## 🔗 Ver blog
 
 [https://samuelibanezz.github.io/mi_Blog_Fisica](https://samuelibanezz.github.io/mi_Blog_Fisica)
 
+## 🛠️ Tecnologías
+
+- HTML5 / CSS3
+- GitHub Pages
+
 ---
 
-*Autor: Samuel — SENA 2025*
+*Autor: Samuel · SENA 2025*
